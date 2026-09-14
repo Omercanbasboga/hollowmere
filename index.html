@@ -4,42 +4,53 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hollowmere</title>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
+
+<div class="ember"></div>
+<div class="ember"></div>
+<div class="ember"></div>
+<div class="ember"></div>
+<div class="ember"></div>
 
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <symbol id="icon-moth" viewBox="0 0 24 24">
       <path d="M12 4 L12 18 M12 8 C6 4 2 6 2 12 C2 16 6 18 12 14 M12 8 C18 4 22 6 22 12 C22 16 18 18 12 14"
             fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <circle cx="12" cy="6.5" r="1" fill="currentColor"/>
     </symbol>
     <symbol id="icon-bone" viewBox="0 0 24 24">
       <path d="M5 5 A2.4 2.4 0 1 1 8 8 L16 16 A2.4 2.4 0 1 1 19 19 A2.4 2.4 0 1 1 16 16 L8 8 A2.4 2.4 0 1 1 5 5 A2.4 2.4 0 1 1 8 8"
             fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <circle cx="12" cy="12" r="1.2" fill="currentColor"/>
     </symbol>
     <symbol id="icon-serpent" viewBox="0 0 24 24">
       <path d="M4 18 C4 10 10 14 10 8 C10 4 6 4 6 8 M10 8 C14 14 20 10 20 18"
             fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <circle cx="6" cy="7" r="0.9" fill="currentColor"/>
     </symbol>
     <symbol id="icon-ashling" viewBox="0 0 24 24">
       <path d="M12 3 C9 8 6 10 6 15 A6 6 0 0 0 18 15 C18 10 15 8 12 3 Z"
             fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M12 8 C10.5 11 9.5 12.5 9.5 15 A2.5 2.5 0 0 0 14.5 15 C14.5 12.5 13.5 11 12 8 Z"
+            fill="none" stroke="currentColor" stroke-width="1.1" opacity="0.7"/>
     </symbol>
     <symbol id="icon-drowspawn" viewBox="0 0 24 24">
       <path d="M12 2 L20 12 L12 22 L4 12 Z M12 2 L12 22 M4 12 L20 12"
             fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M12 8 L16 12 L12 16 L8 12 Z" fill="currentColor" opacity="0.5"/>
     </symbol>
   </defs>
 </svg>
 
 <header>
   <h1>Hollowmere</h1>
-  <p class="lore">
-    Hollowmere used to be a keep. Now it's mostly rubble and things that shouldn't move.
-    You're the last Warden left, and the wards that kept the depths shut are failing floor by
-    floor. Seal what's crawling up before it reaches the surface.
-  </p>
+  <p class="tagline">A match-3 about sealing what's crawling up from underneath.</p>
 </header>
 
 <main>
@@ -55,8 +66,22 @@
     <div class="board" id="board"></div>
   </section>
 
+  <div class="overlay" id="intro-overlay">
+    <div class="overlay-card overlay-card--intro">
+      <h2>Hollowmere</h2>
+      <p class="intro-lore">
+        Hollowmere used to be a keep. Now it's mostly rubble and things that shouldn't move.
+        You're the last Warden left, and the wards that kept the depths shut are failing floor
+        by floor. Match three of the same creature to weaken it, fill its ward meter, and seal
+        it before your moves run out.
+      </p>
+      <div class="codex" id="codex"></div>
+      <button id="begin-button">Begin the Watch</button>
+    </div>
+  </div>
+
   <div class="overlay" id="overlay" hidden>
-    <div class="overlay-card">
+    <div class="overlay-card" id="overlay-card">
       <h2 id="overlay-title"></h2>
       <p id="overlay-text"></p>
       <button id="overlay-button">Try again</button>
@@ -69,6 +94,6 @@
      If it's unreachable this still plays fine on defaults.</p>
 </footer>
 
-<script src="script.js?v=2"></script>
+<script src="script.js?v=3"></script>
 </body>
 </html>

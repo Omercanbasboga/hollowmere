@@ -11,11 +11,16 @@ const DEFAULT_CONFIG = {
 };
 
 const CREATURES = [
-  { id: "moth", name: "Grave Moth", color: "#b47cff", icon: "icon-moth" },
-  { id: "bone", name: "Bonewretch", color: "#e7e2d6", icon: "icon-bone" },
-  { id: "serpent", name: "Fen Serpent", color: "#5fbf7a", icon: "icon-serpent" },
-  { id: "ashling", name: "Ashling", color: "#ff8a4c", icon: "icon-ashling" },
-  { id: "drowspawn", name: "Drowspawn", color: "#4b3f6b", icon: "icon-drowspawn" },
+  { id: "moth", name: "Grave Moth", color: "#b47cff", icon: "icon-moth",
+    flavor: "The small stuff. Comes up in swarms." },
+  { id: "bone", name: "Bonewretch", color: "#e7e2d6", icon: "icon-bone",
+    flavor: "Whatever used to hold a sword down here, still trying to." },
+  { id: "serpent", name: "Fen Serpent", color: "#5fbf7a", icon: "icon-serpent",
+    flavor: "The water table isn't supposed to have things living in it." },
+  { id: "ashling", name: "Ashling", color: "#ff8a4c", icon: "icon-ashling",
+    flavor: "A wisp of whatever burned this place the first time." },
+  { id: "drowspawn", name: "Drowspawn", color: "#4b3f6b", icon: "icon-drowspawn",
+    flavor: "The one nobody wants to see reach the surface." },
 ];
 
 const state = {
@@ -197,12 +202,13 @@ function checkWinLose() {
   const allSealed = CREATURES.every((c) => state.sealed.has(c.id));
   if (allSealed) {
     state.gameOver = true;
-    showOverlay("Hollowmere holds.", "Every ward is sealed. For now.");
+    showOverlay("Hollowmere holds.", "Every ward is sealed. For now.", "win");
   } else if (state.movesLeft <= 0) {
     state.gameOver = true;
     showOverlay(
       "Hollowmere falls.",
-      "You ran out of moves before the last ward held."
+      "You ran out of moves before the last ward held.",
+      "lose"
     );
   }
 }
@@ -287,8 +293,11 @@ function renderWards() {
     div.title = creature.name + (sealed ? " (sealed)" : "");
     div.innerHTML = `
       <svg style="color:${creature.color}"><use href="#${creature.icon}"></use></svg>
-      <div class="ward-bar-track">
-        <div class="ward-bar-fill" style="width:${pct}%;background:${creature.color}"></div>
+      <div class="ward-info">
+        <span class="ward-name">${creature.name}</span>
+        <div class="ward-bar-track">
+          <div class="ward-bar-fill" style="width:${pct}%;background:${creature.color}"></div>
+        </div>
       </div>
     `;
     wardsEl.appendChild(div);
@@ -297,7 +306,7 @@ function renderWards() {
 
 function renderBoard() {
   const boardEl = document.getElementById("board");
-  boardEl.style.gridTemplateColumns = `repeat(${state.boardSize}, 40px)`;
+  boardEl.style.gridTemplateColumns = `repeat(${state.boardSize}, 44px)`;
   boardEl.classList.toggle("busy", state.animating);
   boardEl.innerHTML = "";
 
@@ -327,10 +336,30 @@ function renderBoard() {
   }
 }
 
-function showOverlay(title, text) {
+function showOverlay(title, text, variant) {
+  const card = document.getElementById("overlay-card");
+  card.classList.remove("overlay-card--win", "overlay-card--lose");
+  card.classList.add(variant === "win" ? "overlay-card--win" : "overlay-card--lose");
   document.getElementById("overlay-title").textContent = title;
   document.getElementById("overlay-text").textContent = text;
   document.getElementById("overlay").hidden = false;
+}
+
+function renderCodex() {
+  const codexEl = document.getElementById("codex");
+  codexEl.innerHTML = "";
+  for (const creature of CREATURES) {
+    const div = document.createElement("div");
+    div.className = "codex-entry";
+    div.innerHTML = `
+      <svg style="color:${creature.color}"><use href="#${creature.icon}"></use></svg>
+      <div>
+        <span class="codex-name">${creature.name}</span>
+        <span class="codex-flavor">${creature.flavor}</span>
+      </div>
+    `;
+    codexEl.appendChild(div);
+  }
 }
 
 function hideOverlay() {
@@ -381,6 +410,13 @@ function initGame(config) {
 
 const retryBtn = document.getElementById("overlay-button");
 retryBtn.addEventListener("click", () => initGame(state.lastConfig || DEFAULT_CONFIG));
+
+const beginBtn = document.getElementById("begin-button");
+beginBtn.addEventListener("click", () => {
+  document.getElementById("intro-overlay").hidden = true;
+});
+
+renderCodex();
 
 (async function boot() {
   const config = await loadConfig(LEVEL_ID);
