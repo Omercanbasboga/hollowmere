@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hollowmere</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="icon-moth" viewBox="0 0 24 24">
+      <path d="M12 4 L12 18 M12 8 C6 4 2 6 2 12 C2 16 6 18 12 14 M12 8 C18 4 22 6 22 12 C22 16 18 18 12 14"
+            fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="icon-bone" viewBox="0 0 24 24">
+      <path d="M5 5 A2.4 2.4 0 1 1 8 8 L16 16 A2.4 2.4 0 1 1 19 19 A2.4 2.4 0 1 1 16 16 L8 8 A2.4 2.4 0 1 1 5 5 A2.4 2.4 0 1 1 8 8"
+            fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="icon-serpent" viewBox="0 0 24 24">
+      <path d="M4 18 C4 10 10 14 10 8 C10 4 6 4 6 8 M10 8 C14 14 20 10 20 18"
+            fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="icon-ashling" viewBox="0 0 24 24">
+      <path d="M12 3 C9 8 6 10 6 15 A6 6 0 0 0 18 15 C18 10 15 8 12 3 Z"
+            fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+    <symbol id="icon-drowspawn" viewBox="0 0 24 24">
+      <path d="M12 2 L20 12 L12 22 L4 12 Z M12 2 L12 22 M4 12 L20 12"
+            fill="none" stroke="currentColor" stroke-width="1.6"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header>
+  <h1>Hollowmere</h1>
+  <p class="lore">
+    Hollowmere used to be a keep. Now it's mostly rubble and things that shouldn't move.
+    You're the last Warden left, and the wards that kept the depths shut are failing floor by
+    floor. Seal what's crawling up before it reaches the surface.
+  </p>
+</header>
+
+<main>
+  <section class="hud">
+    <div class="moves">
+      <span class="moves-count" id="moves-count">--</span>
+      <span class="moves-label">moves left</span>
+    </div>
+    <div class="wards" id="wards"></div>
+  </section>
+
+  <section class="board-wrap">
+    <div class="board" id="board"></div>
+  </section>
+
+  <div class="overlay" id="overlay" hidden>
+    <div class="overlay-card">
+      <h2 id="overlay-title"></h2>
+      <p id="overlay-text"></p>
+      <button id="overlay-button">Try again</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>Board and move budget come from a small live-ops config service.
+     If it's unreachable this still plays fine on defaults.</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
