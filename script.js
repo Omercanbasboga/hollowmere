@@ -26,11 +26,19 @@ const state = {
   movesLeft: 0,
   board: [],
   sealed: new Set(),
+  sealAnimated: new Set(),
   wardProgress: {},
   selected: null,
   gameOver: false,
   lastConfig: null,
+  animating: false,
+  clearingCells: new Set(),
+  newCells: new Set(),
 };
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function loadConfig(levelId) {
   try {
@@ -128,6 +136,7 @@ function clearCells(matchSet) {
 
 function applyGravityAndRefill() {
   const n = state.boardSize;
+  const newCells = new Set();
   for (let c = 0; c < n; c++) {
     const survivors = [];
     for (let r = 0; r < n; r++) {
@@ -137,16 +146,30 @@ function applyGravityAndRefill() {
     const newColumn = [];
     for (let i = 0; i < missing; i++) newColumn.push(randomUnsealedType());
     for (const v of survivors) newColumn.push(v);
-    for (let r = 0; r < n; r++) state.board[r][c] = newColumn[r];
+    for (let r = 0; r < n; r++) {
+      state.board[r][c] = newColumn[r];
+      if (r < missing) newCells.add(r + "," + c);
+    }
   }
+  state.newCells = newCells;
 }
 
-function resolveMatchesLoop(matches) {
+async function resolveMatchesLoop(matches) {
   let current = matches;
   while (current.size > 0) {
     tallyWard(current);
+    state.clearingCells = current;
+    render();
+    await wait(200);
+
+    state.clearingCells = new Set();
     clearCells(current);
     applyGravityAndRefill();
+    render();
+
+    checkSeals();
+    render();
+
     current = findMatches(state.board);
   }
 }
@@ -190,7 +213,7 @@ function swapCells(r1, c1, r2, c2) {
   state.board[r2][c2] = tmp;
 }
 
-function trySwap(r1, c1, r2, c2) {
+async function trySwap(r1, c1, r2, c2) {
   swapCells(r1, c1, r2, c2);
   const matches = findMatches(state.board);
   if (matches.size === 0) {
@@ -198,15 +221,20 @@ function trySwap(r1, c1, r2, c2) {
     render();
     return;
   }
+
+  state.animating = true;
   state.movesLeft -= 1;
-  resolveMatchesLoop(matches);
-  checkSeals();
+  render();
+
+  await resolveMatchesLoop(matches);
   checkWinLose();
+
+  state.animating = false;
   render();
 }
 
 function onTileClick(r, c) {
-  if (state.gameOver) return;
+  if (state.gameOver || state.animating) return;
 
   if (!state.selected) {
     state.selected = { r, c };
@@ -235,6 +263,7 @@ function render() {
   document.getElementById("moves-count").textContent = state.movesLeft;
   renderWards();
   renderBoard();
+  state.newCells = new Set();
 }
 
 function renderWards() {
@@ -250,6 +279,11 @@ function renderWards() {
 
     const div = document.createElement("div");
     div.className = "ward" + (sealed ? " sealed" : "");
+    if (!sealed && pct >= 80) div.classList.add("ward-near");
+    if (sealed && !state.sealAnimated.has(creature.id)) {
+      div.classList.add("seal-flash");
+      state.sealAnimated.add(creature.id);
+    }
     div.title = creature.name + (sealed ? " (sealed)" : "");
     div.innerHTML = `
       <svg style="color:${creature.color}"><use href="#${creature.icon}"></use></svg>
@@ -264,10 +298,12 @@ function renderWards() {
 function renderBoard() {
   const boardEl = document.getElementById("board");
   boardEl.style.gridTemplateColumns = `repeat(${state.boardSize}, 40px)`;
+  boardEl.classList.toggle("busy", state.animating);
   boardEl.innerHTML = "";
 
   for (let r = 0; r < state.boardSize; r++) {
     for (let c = 0; c < state.boardSize; c++) {
+      const key = r + "," + c;
       const typeId = state.board[r][c];
       const creature = CREATURES.find((x) => x.id === typeId);
 
@@ -275,6 +311,11 @@ function renderBoard() {
       tile.className = "tile";
       if (state.selected && state.selected.r === r && state.selected.c === c) {
         tile.classList.add("selected");
+      }
+      if (state.clearingCells.has(key)) {
+        tile.classList.add("clearing");
+      } else if (state.newCells.has(key)) {
+        tile.classList.add("tile-pop");
       }
       if (creature) {
         tile.style.background = creature.color;
@@ -304,9 +345,12 @@ function initGame(config) {
   state.difficultyMultiplier = config.difficultyMultiplier;
   state.movesLeft = config.moveLimit;
   state.sealed = new Set();
+  state.sealAnimated = new Set();
   state.wardProgress = {};
   state.selected = null;
   state.gameOver = false;
+  state.animating = false;
+  state.clearingCells = new Set();
 
   state.board = [];
   for (let r = 0; r < state.boardSize; r++) {
@@ -324,6 +368,11 @@ function initGame(config) {
     applyGravityAndRefill();
     starting = findMatches(state.board);
     safety++;
+  }
+
+  state.newCells = new Set();
+  for (let r = 0; r < state.boardSize; r++) {
+    for (let c = 0; c < state.boardSize; c++) state.newCells.add(r + "," + c);
   }
 
   hideOverlay();
